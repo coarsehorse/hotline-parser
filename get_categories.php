@@ -7,8 +7,8 @@
  */
 
 
-include "Category.php";
-include "Subcategory.php";
+include_once "Category.php";
+include_once "Subcategory.php";
 
 /**
  * Parses the hotline.ua catalog and gets first $n categories.
@@ -110,4 +110,4 @@ function getSubcategories($xpath, $treeNavigationItem) {
 }
 
 // Some tests
-//var_dump(findCategories(6));
+//var_dump(getCategories(6));

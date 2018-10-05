@@ -6,18 +6,28 @@
  * Time: 4:59 PM
  */
 
-$arr = array(1, 2, 3, 4);
-foreach ($arr as $value) {
-    $value = $value * 2;
+include_once "get_categories.php";
+include_once "get_product_links.php";
+include_once "get_product.php";
+
+$categ = null;
+try {
+    $categ = getCategories(1);
+} catch (Exception $e) {
+    echo $e->getTraceAsString();
 }
-// $arr = array(2, 4, 6, 8)
 
-// Без unset($value), $value все еще ссылается на последний элемент: $arr[3]
+/* @var $categ Category */
+$subcat = $categ[0]->getSubcategories()[1];
+var_dump($subcat);
+$productLinks = getProductLinks($subcat);
+var_dump($productLinks);
+$products = array();
 
-foreach ($arr as $key => $value) {
-    // $arr[3] будет перезаписываться значениями $arr при каждой итерации цикла
-    echo "{$key} => {$value} ";
-    print_r($arr);
-
-    // "//li[contains(concat(' ', normalize-space(@class), ' '), ' level-1 ' )]/a/@href");
+foreach ($productLinks as $link) {
+    $products[] = getProduct($link);
 }
+
+var_dump($products);
+
+// ! Exclude price(go to another site) product links

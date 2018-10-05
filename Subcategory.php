@@ -37,6 +37,4 @@ class Subcategory
     {
         return $this->subcategoryLinks;
     }
-
-
 }

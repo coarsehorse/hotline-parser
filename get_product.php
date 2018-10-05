@@ -6,7 +6,7 @@
  * Time: 7:29 PM
  */
 
-include "Product.php";
+include_once "Product.php";
 
 
 /**
@@ -17,11 +17,15 @@ include "Product.php";
  */
 function getProduct($link)
 {
+    $time_start = microtime(true);
     // Getting product page
-    $contents = file_get_contents($link);
+    $ctx = stream_context_create(array('https' => array('timeout' => 3)));
+    $contents = file_get_contents($link, false, $ctx);
     $dom = new DOMDocument();
     @$dom->loadHTML($contents);
     $xpath = new DOMXpath($dom);
+
+    echo 'loaded' . "\n";
 
     // Parsing name
     $name = $xpath
@@ -111,6 +115,12 @@ function getProduct($link)
         }
     }
 
+    $time_end = microtime(true);
+
+    $execution_time = ($time_end - $time_start);
+    echo 'Time: ' . $execution_time;
+
+
     return new Product($name, $category, $imageUrl, $price, $brand, $description, $characteristics);
 }
 
@@ -121,3 +131,5 @@ var_dump(parseProduct("https://hotline.ua/computer-myshi-klaviatury/kingston-hyp
 echo "\n";
 var_dump(parseProduct("https://hotline.ua/auto-deflektory-okon-vetroviki/auto-clover-deflektory-okon-autoclover-a078/"));*/
 //var_dump(getProduct("https://hotline.ua/zootovary-aksessuary-dlya-akvariumov/tetra-grunt-dlya-akvariuma-s-rasteniyami-active-substrats-6-l/"));
+//var_dump(getProduct("https://hotline.ua/auto-kolpaki-dlya-koles/sks-216-r14/"));
+//var_dump(getProduct("https://hotline.ua/auto-sistemy-kontrolya-davleniya-v-shinah/orange_409/"));

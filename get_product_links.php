@@ -6,7 +6,7 @@
  * Time: 5:06 AM
  */
 
-include "Subcategory.php";
+include_once "Subcategory.php";
 
 /**
  * Parses the product links in the subcategory.
@@ -14,7 +14,7 @@ include "Subcategory.php";
  * @param $subcategory Subcategory The subcategory with its links.
  * @return array the array of the subcategory product links.
  */
-function get_product_links($subcategory)
+function getProductLinks($subcategory)
 {
     $productLinks = array();
 
@@ -29,8 +29,23 @@ function get_product_links($subcategory)
         // Getting product links
         $productLinksQuery = $xpath->query("//div[@class='item-img']/a/@href");
 
-        foreach ($productLinksQuery as $link) {
-            $productLinks[] = "https://hotline.ua" . $link->textContent;
+        foreach ($productLinksQuery as $href) {
+            $linkPart = $href->textContent;
+
+            // Exclude unstandardized products
+            $exceptionsArray = array("/price/");
+            $linkIsBad = false;
+
+            foreach ($exceptionsArray as $exception) {
+                if (strpos($linkPart, $exception) !== false) {
+                    $linkIsBad = true;
+                    break;
+                }
+            }
+
+            if (!$linkIsBad) {
+                $productLinks[] = "https://hotline.ua" . $linkPart;
+            }
         }
     }
 
@@ -39,6 +54,7 @@ function get_product_links($subcategory)
 
 // Some tests
 //$subc = new Subcategory("Для рыб и рептилий",
-//    array("https://hotline.ua/zootovary/akvariumy/",
-//        "https://hotline.ua/zootovary/aksessuary-dlya-akvariumov/"));
-//var_dump(get_product_links($subc));
+//    array("https://hotline.ua/auto/gruzovye-shiny/"/*,
+//        "https://hotline.ua/zootovary/akvariumy/",
+//        "https://hotline.ua/zootovary/aksessuary-dlya-akvariumov/"*/));
+//var_dump(getProductLinks($subc));
