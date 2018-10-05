@@ -118,8 +118,9 @@ function parseProduct($link)
     return new Product($name, $category, $imageUrl, $price, $brand, $description, $characteristics);
 }
 
-var_dump(parseProduct("https://hotline.ua/auto-gps-navigatory/garmin-streetpilot-2610/"));
+// Some tests
+/*var_dump(parseProduct("https://hotline.ua/auto-gps-navigatory/garmin-streetpilot-2610/"));
 echo "\n";
-parseProduct("https://hotline.ua/computer-myshi-klaviatury/kingston-hyperx-pulsefire-surge-usb-black-hx-mc002b/");
+var_dump(parseProduct("https://hotline.ua/computer-myshi-klaviatury/kingston-hyperx-pulsefire-surge-usb-black-hx-mc002b/"));
 echo "\n";
-parseProduct("https://hotline.ua/auto-deflektory-okon-vetroviki/auto-clover-deflektory-okon-autoclover-a078/");
+var_dump(parseProduct("https://hotline.ua/auto-deflektory-okon-vetroviki/auto-clover-deflektory-okon-autoclover-a078/"));*/

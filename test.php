@@ -18,4 +18,6 @@ foreach ($arr as $key => $value) {
     // $arr[3] будет перезаписываться значениями $arr при каждой итерации цикла
     echo "{$key} => {$value} ";
     print_r($arr);
+
+    // "//li[contains(concat(' ', normalize-space(@class), ' '), ' level-1 ' )]/a/@href");
 }
