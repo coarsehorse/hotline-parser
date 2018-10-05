@@ -17,7 +17,7 @@ include "Subcategory.php";
  * @return array the array of categories(Category objects).
  * @throws Exception The parsing error with specific message.
  */
-function findCategories($n = 5) {
+function getCategories($n = 5) {
     $categories = array();
 
     // Getting catalog page
@@ -31,6 +31,7 @@ function findCategories($n = 5) {
         ->query("//div[@class='viewbox']/div[@class='row']/div[contains(@class, 'cell-')]");
 
     if ($catCells->length != 0) {
+
         // One category cell contains on the one level multiple category names with their category trees.
         // Like: [cat_name cat_tree cat_name cat_tree]
         foreach ($catCells as $catCell) {
@@ -41,8 +42,10 @@ function findCategories($n = 5) {
 
             // Check whether the all category trees have their category names.
             if ($categoryNames->length != 0 and $categoryTrees->length == $categoryNames->length) {
+
                 // Process each category name and corresponding category tree
                 for ($i = 0; $i < $categoryNames->length; $i++) {
+
                     // Complete the execution if $n categories found
                     if (count($categories) >= $n) {
                         break;

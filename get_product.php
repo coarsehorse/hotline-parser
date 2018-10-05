@@ -8,7 +8,14 @@
 
 include "Product.php";
 
-function parseProduct($link)
+
+/**
+ * Parses the specific product page and constructs Product object.
+ *
+ * @param $link string The product url.
+ * @return Product The product object.
+ */
+function getProduct($link)
 {
     // Getting product page
     $contents = file_get_contents($link);
@@ -16,7 +23,7 @@ function parseProduct($link)
     @$dom->loadHTML($contents);
     $xpath = new DOMXpath($dom);
 
-    // Parse name
+    // Parsing name
     $name = $xpath
         ->query("//h1[@datatype='card-title']");
     if ($name->length != 0) {
@@ -25,7 +32,7 @@ function parseProduct($link)
         $name = null;
     }
 
-    // Parse category
+    // Parsing category
     $category = $xpath
         ->query("//ul[contains(@class, 'breadcrumbs')]//li/a");
     if ($category->length != 0) {
@@ -34,7 +41,7 @@ function parseProduct($link)
         $category = null;
     }
 
-    // Parse image
+    // Parsing image
     // //img[contains(@data-type, 'photo')]
     $imageUrl = $xpath
         ->query("//div[contains(@class, 'gallery-box')]/img[contains(@class, 'img-product')]/@src");
@@ -44,7 +51,7 @@ function parseProduct($link)
         $imageUrl = null;
     }
 
-    // Parse price
+    // Parsing price
     $price = null;
     $priceRange = $xpath
         ->query("//span[contains(@class, 'price-lg')]");
@@ -58,7 +65,7 @@ function parseProduct($link)
         $price = trim($priceRange->item(0)->textContent);
     }
 
-    // Parse brand
+    // Parsing brand
     $brand = $xpath
         ->query("//div[contains(text(), 'Производитель')]/..//p");
     if ($brand->length != 0) {
@@ -67,7 +74,7 @@ function parseProduct($link)
         $brand = null;
     }
 
-    // Parse description
+    // Parsing description
     $description = $xpath
         ->query("//div[contains(@class, 'text')]/p[@data-specification-box]");
     if ($description->length != 0) {
@@ -76,7 +83,7 @@ function parseProduct($link)
         $description = null;
     }
 
-    // Parse characteristics
+    // Parsing characteristics
     $characteristics = array();
     $charQuery = $xpath->query("//div[@class='clearfix active']/div");
     if ($charQuery->length != 0) {
@@ -104,17 +111,6 @@ function parseProduct($link)
         }
     }
 
-    // Debug
-    /*var_dump($name);
-    var_dump($category);
-    var_dump($imageUrl);
-    var_dump($price);
-    var_dump($brand);
-    var_dump($description);
-    foreach ($characteristics as $c) {
-        echo "\"" . $c["name"] . "\": \"" . $c["value"] . "\"\n";
-    }*/
-
     return new Product($name, $category, $imageUrl, $price, $brand, $description, $characteristics);
 }
 
@@ -124,3 +120,4 @@ echo "\n";
 var_dump(parseProduct("https://hotline.ua/computer-myshi-klaviatury/kingston-hyperx-pulsefire-surge-usb-black-hx-mc002b/"));
 echo "\n";
 var_dump(parseProduct("https://hotline.ua/auto-deflektory-okon-vetroviki/auto-clover-deflektory-okon-autoclover-a078/"));*/
+//var_dump(getProduct("https://hotline.ua/zootovary-aksessuary-dlya-akvariumov/tetra-grunt-dlya-akvariuma-s-rasteniyami-active-substrats-6-l/"));
