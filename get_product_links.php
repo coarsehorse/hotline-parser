@@ -12,9 +12,10 @@ include_once "Subcategory.php";
  * Parses the product links in the subcategory.
  *
  * @param $subcategory Subcategory The subcategory with its links.
- * @return array the array of the subcategory product links.
+ * @param int $n the desirable number of product links.
+ * @return array the array of the subcategory product links. Array length will be <= $n.
  */
-function getProductLinks($subcategory)
+function getSubcategoryProductLinks($subcategory, $n = 20)
 {
     $productLinks = array();
 
@@ -30,6 +31,12 @@ function getProductLinks($subcategory)
         $productLinksQuery = $xpath->query("//div[@class='item-img']/a/@href");
 
         foreach ($productLinksQuery as $href) {
+
+            // Complete the execution if $n product links are found
+            if (count($productLinks) >= $n) {
+                return $productLinks;
+            }
+
             $linkPart = $href->textContent;
 
             // Exclude unstandardized products

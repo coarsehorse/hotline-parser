@@ -17,7 +17,7 @@ include_once "Subcategory.php";
  * @return array the array of categories(Category objects).
  * @throws Exception The parsing error with specific message.
  */
-function getCategories($n = 5) {
+function getCategories($n = 2) {
     $categories = array();
 
     // Getting catalog page
@@ -46,9 +46,9 @@ function getCategories($n = 5) {
                 // Process each category name and corresponding category tree
                 for ($i = 0; $i < $categoryNames->length; $i++) {
 
-                    // Complete the execution if $n categories found
+                    // Complete the execution if $n categories are found
                     if (count($categories) >= $n) {
-                        break;
+                        return $categories;
                     }
 
                     $categoryName = trim($categoryNames->item($i)->textContent);

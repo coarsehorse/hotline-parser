@@ -17,15 +17,12 @@ include_once "Product.php";
  */
 function getProduct($link)
 {
-    $time_start = microtime(true);
     // Getting product page
     $ctx = stream_context_create(array('https' => array('timeout' => 3)));
     $contents = file_get_contents($link, false, $ctx);
     $dom = new DOMDocument();
     @$dom->loadHTML($contents);
     $xpath = new DOMXpath($dom);
-
-    echo 'loaded' . "\n";
 
     // Parsing name
     $name = $xpath
@@ -115,13 +112,8 @@ function getProduct($link)
         }
     }
 
-    $time_end = microtime(true);
 
-    $execution_time = ($time_end - $time_start);
-    echo 'Time: ' . $execution_time;
-
-
-    return new Product($name, $category, $imageUrl, $price, $brand, $description, $characteristics);
+    return new Product($name, $link, $category, $imageUrl, $price, $brand, $description, $characteristics);
 }
 
 // Some tests
@@ -133,3 +125,5 @@ var_dump(parseProduct("https://hotline.ua/auto-deflektory-okon-vetroviki/auto-cl
 //var_dump(getProduct("https://hotline.ua/zootovary-aksessuary-dlya-akvariumov/tetra-grunt-dlya-akvariuma-s-rasteniyami-active-substrats-6-l/"));
 //var_dump(getProduct("https://hotline.ua/auto-kolpaki-dlya-koles/sks-216-r14/"));
 //var_dump(getProduct("https://hotline.ua/auto-sistemy-kontrolya-davleniya-v-shinah/orange_409/"));
+//var_dump(getProduct("https://hotline.ua/auto-gruzovye-shiny/michelin-x-multi-d-21575r175-126124m-3513699/"));
+//var_dump(getProduct("https://hotline.ua/auto-kolesnye-diski/krkz-r13-w50-pcd4x98-et29-dia605/"));
