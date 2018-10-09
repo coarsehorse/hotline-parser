@@ -10,7 +10,7 @@ include_once "../parser/HotlineParser.php";
 include_once "../dao/WoocomerceDAO.php";
 
 // Input data
-$categoryNum = 1; // number of all categories
+$categoryNum = 2; // number of all categories
 $subcPerCategoryNum = 2; // number of subcategories per category
 $productsPerSubcatNum = 3; // number of products per subcategory
 
@@ -42,7 +42,7 @@ foreach ($categories as $category) {
         if ($q) {
             $categoryId = get_object_vars($q)["id"];
 
-            echo "Category \"" . $category->getCategoryName() . "\" was added to the WooCommerce\n";
+            echo "Category \"" . $category->getCategoryName() . "\" has been added to the WooCommerce\n";
         } else {
             throw new Exception("Something goes wrong with category addition");
         }
@@ -72,7 +72,7 @@ foreach ($categories as $category) {
             if ($q) {
                 $subcategoryId = get_object_vars($q)["id"];
 
-                echo "Subcategory \"" . $subcategory->getSubcategoryName() . "\" was added to the WooCommerce\n";
+                //echo "Subcategory \"" . $subcategory->getSubcategoryName() . "\" has been added to the WooCommerce\n";
             } else {
                 throw new Exception("\nSomething goes wrong with subcategory addition\n");
             }
@@ -88,8 +88,8 @@ foreach ($categories as $category) {
         // Parse n products from subcategory and save it
         $productLinks = $parser->getSubcategoryProductLinks($subcategory, $productsPerSubcatNum);
 
-        echo "Subcategory(" . $subcategory->getSubcategoryName()
-            . ") product links(" . count($productLinks) . ") has been parsed\n";
+        /*echo "Subcategory(" . $subcategory->getSubcategoryName()
+            . ") product links(" . count($productLinks) . ") has been parsed\n";*/
 
         $parsedProducts = array();
 
@@ -99,9 +99,44 @@ foreach ($categories as $category) {
         echo "Subcategory(" . $subcategory->getSubcategoryName()
             . ") products(" . count($parsedProducts) . ") has been parsed\n";
 
+        // Parse products brands
+        $brands = array_map(function ($p) { return $p->getBrand(); }, $parsedProducts);
+        $wooBrands = $dao->getBrands();
+        $wooBrandNames = array_map(function ($brand) {
+            return $brand["name"];
+        }, $wooBrands);
+
+        if (count($wooBrands) == 0) {
+            // Add all the parsed brands
+            foreach ($brands as $brand) {
+                $dao->addBrand($brand);
+                echo "Brand(" . $brand . ") has been added to the WooCommerce\n";
+            }
+        } else {
+            foreach ($brands as $brand) {
+                // Add an absent brands
+                if (!in_array($brand, $wooBrandNames)) {
+                    $dao->addBrand($brand);
+                    $wooBrandNames[] = $brand;
+                    echo "Brand(" . $brand . ") has been added to the WooCommerce\n";
+                }
+            }
+        }
+
+        // Refresh Woo brands("Perfect WooCommerce Brands" API does not returns a newly added brand id)
+        $wooBrands = $dao->getBrands();
+
+        if (count($wooBrands) == 0) {
+            throw new Exception("At that moment Woo brands must exist");
+        }
+
         // Upload products from this subcategory
         foreach ($parsedProducts as $product) {
-            $dao->uploadProduct($product, $subcategoryId);
+            $brandId = array_values(array_filter($wooBrands, function ($wooBrand) use ($product) {
+                return $wooBrand["name"] == $product->getBrand();
+            }));
+            $brandId = $brandId[0]["term_id"];
+            $dao->uploadProduct($product, $subcategoryId, $brandId);
         }
         echo "Subcategory(" . $subcategory->getSubcategoryName()
             . ") products(" . count($parsedProducts). ") has been uploaded\n";

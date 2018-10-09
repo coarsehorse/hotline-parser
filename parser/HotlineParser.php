@@ -220,10 +220,14 @@ class HotlineParser
             $singlePrice = $xpath
                 ->query("//div[contains(@class, 'resume-price')]//span[contains(@class, 'price-format')]");
             if ($singlePrice->length != 0) {
-                $price = trim($singlePrice->item(0)->textContent);
+                $price = explode(",", trim($singlePrice->item(0)->textContent))[0];
+            } else {
+                throw new Exception("Price string length = 0 at " . $link);
             }
         } else {
-            $price = trim($priceRange->item(0)->textContent);
+            // Replace &nbsp
+            $price = explode("–",
+                str_replace(" ", "", trim($priceRange->item(0)->textContent)))[0];
         }
 
         // Parsing brand

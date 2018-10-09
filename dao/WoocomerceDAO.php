@@ -86,12 +86,14 @@ class WoocomerceDAO
     }
 
     /**
-     * Uploading one product to the WooCommerce db.
+     * Uploading a one product to the WooCommerce db.
      *
      * @param $product Product The parsed product.
+     * @param int $wooCategoryId The WooCommerce category id. Default is 0 (Uncategorized category).
+     * @param int $wooBrandId The WooCommerce brand id. Default is 0 (no brand).
      * @return array The array with result of operation.
      */
-    public function uploadProduct($product, $wooCategoryId = 0)
+    public function uploadProduct($product, $wooCategoryId = 0, $wooBrandId = 0)
     {
         try {
             $data = array();
@@ -102,6 +104,9 @@ class WoocomerceDAO
             $data["categories"] = array(array("id" => $wooCategoryId));
             $data["images"] = array(array("src" => $product->getImageUrl(), "position" => 0));
 
+            if ($wooBrandId) {
+                $data["brands"] = array($wooBrandId);
+            }
 
             return $this->woo->post("products", $data);
         } catch (HttpClientException $e) {
@@ -110,6 +115,8 @@ class WoocomerceDAO
     }
 
     /**
+     * Add a new category.
+     *
      * @param $name string The category name.
      * @param int $parent The category parent.
      * @param null $imageSrc Optional image url.
@@ -126,6 +133,38 @@ class WoocomerceDAO
             }
 
             return $this->woo->post("products/categories", $data);
+        } catch (HttpClientException $e) {
+            echo $e->getMessage(); // Error message
+        }
+    }
+
+    /**
+     * Get all the brands.
+     *
+     * @return array The array with brand objects(in array representation).
+     */
+    function getBrands()
+    {
+        try {
+            return array_map(function ($brand) {
+                return get_object_vars($brand);
+            }, $this->woo->get("brands"));
+        } catch (HttpClientException $e) {
+            echo $e->getMessage(); // Error message
+        }
+    }
+
+    /**
+     * Add a new brand.
+     *
+     * @param $brandName string The brand name. Slug will be generated based on the name.
+     * @return array An array with a single boolean value that indicating whether the operation was successful.
+     */
+    function addBrand($brandName) {
+        try {
+            $data = ["name" => $brandName];
+
+            return $this->woo->post("brands", $data);
         } catch (HttpClientException $e) {
             echo $e->getMessage(); // Error message
         }
