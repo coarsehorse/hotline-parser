@@ -20,10 +20,11 @@ class HotlineParser
      * Parses the hotline.ua catalog and gets first $n categories.
      *
      * @param $n integer The number of categories that will be returned.
+     * @param int $categoriesOffset The parser start will be shifted by the specified offset.
      * @return array the array of categories(Category objects).
      * @throws Exception The parsing error with specific message.
      */
-    function getCategories($n = 2) {
+    function getCategories($n = 2, $categoriesOffset = 0) {
         $categories = array();
 
         // Getting catalog page
@@ -37,6 +38,7 @@ class HotlineParser
             ->query("//div[@class='viewbox']/div[@class='row']/div[contains(@class, 'cell-')]");
 
         if ($catCells->length != 0) {
+            $categoryCounter = 0; // number of parsed categories
 
             // One category cell contains on the one level multiple category names with their category trees.
             // Like: [cat_name cat_tree cat_name cat_tree]
@@ -51,16 +53,20 @@ class HotlineParser
 
                     // Process each category name and corresponding category tree
                     for ($i = 0; $i < $categoryNames->length; $i++) {
+                        $categoryCounter++;
 
-                        // Complete the execution if $n categories are found
-                        if (count($categories) >= $n) {
-                            return $categories;
+                        // Check offset
+                        if (($categoryCounter - 1) >= $categoriesOffset) {
+                            // Complete an execution if the $n categories are found
+                            if (count($categories) >= $n) {
+                                return $categories;
+                            }
+
+                            $categoryName = trim($categoryNames->item($i)->textContent);
+                            $subcategories = $this->getSubcategories($xpath, $categoryTrees->item($i), $categoryName);
+
+                            $categories[] = new Category($categoryName, $subcategories);
                         }
-
-                        $categoryName = trim($categoryNames->item($i)->textContent);
-                        $subcategories = $this->getSubcategories($xpath, $categoryTrees->item($i), $categoryName);
-
-                        $categories[] = new Category($categoryName, $subcategories);
                     }
                 } else {
                     throw new Exception('Some error occurred on getting category names and its trees');
@@ -241,9 +247,14 @@ class HotlineParser
 
         // Parsing description
         $description = $xpath
-            ->query("//div[contains(@class, 'text')]/p[@data-specification-box]");
+            ->query("//div[contains(@class, 'text')]/p[@data-specification-box]/text()");
         if ($description->length != 0) {
             $description = trim($description->item(0)->textContent);
+            $moreText = $xpath
+                ->query("//div[contains(@class, 'text')]/p[@data-specification-box]/span[contains(@class, 'hidden')]/text()");
+            if ($moreText->length != 0) {
+                $description .= $moreText->item(0)->textContent;
+            }
         } else {
             $description = null;
         }

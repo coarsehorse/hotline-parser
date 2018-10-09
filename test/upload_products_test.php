@@ -10,23 +10,23 @@ include_once "../parser/HotlineParser.php";
 include_once "../dao/WoocomerceDAO.php";
 
 // Input data
-$categoryNum = 2; // number of all categories
-$subcPerCategoryNum = 2; // number of subcategories per category
-$productsPerSubcatNum = 3; // number of products per subcategory
+$categoryNum = 1; // number of all categories
+$subcPerCategoryNum = 1; // number of subcategories per category
+$productsPerSubcatNum = 10; // number of products per subcategory
+$categoryOffset = 12;
+$subcategoryOffset = 0;
+$productsOffset = 0;
 
 // Prepare parser and dao
 $parser = new HotlineParser();
 $dao = WoocomerceDAO::getInstance();
 
 // Parsing categories
-$categories = $parser->getCategories($categoryNum);
+$categories = $parser->getCategories($categoryNum, $categoryOffset);
 
 echo "Shop categories(" . count($categories) . ") has been loaded\n";
 
 $wooCategories = $dao->getCategoriesNameId();
-
-echo "WooCommerce categories(" . count($wooCategories) . ") has been loaded\n";
-
 $wooCategoryNames = array_map(function ($nameId) {
     return $nameId["name"];
 }, $wooCategories);
@@ -106,20 +106,25 @@ foreach ($categories as $category) {
             return $brand["name"];
         }, $wooBrands);
 
-        if (count($wooBrands) == 0) {
+        /*if (count($wooBrands) == 0) {
             // Add all the parsed brands
             foreach ($brands as $brand) {
-                $dao->addBrand($brand);
-                echo "Brand(" . $brand . ") has been added to the WooCommerce\n";
-            }
-        } else {
-            foreach ($brands as $brand) {
-                // Add an absent brands
                 if (!in_array($brand, $wooBrandNames)) {
                     $dao->addBrand($brand);
                     $wooBrandNames[] = $brand;
-                    echo "Brand(" . $brand . ") has been added to the WooCommerce\n";
+                    echo "1Brand(" . $brand . ") has been added to the WooCommerce\n";
                 }
+            }
+        } else {
+
+        }*/
+
+        foreach ($brands as $brand) {
+            // Add an absent brands
+            if (!in_array($brand, $wooBrandNames)) {
+                $dao->addBrand($brand);
+                $wooBrandNames[] = $brand;
+                echo "Brand(" . $brand . ") has been added to the WooCommerce\n";
             }
         }
 

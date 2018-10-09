@@ -76,13 +76,17 @@ class WoocomerceDAO
      */
     public function getCategoriesNameId()
     {
-        $categories = $this->woo->get("products/categories");
+        try {
+            $categories = $this->woo->get("products/categories");
 
-        return array_map(function ($category) {
-            $vars = get_object_vars($category);
+            return array_map(function ($category) {
+                $vars = get_object_vars($category);
 
-            return array("name" => $vars["name"], "id" => $vars["id"]);
-        }, $categories);
+                return array("name" => $vars["name"], "id" => $vars["id"]);
+            }, $categories);
+        } catch (HttpClientException $e) {
+            echo $e->getMessage() . "\n"; // Error message
+        }
     }
 
     /**
@@ -100,7 +104,6 @@ class WoocomerceDAO
             $data["name"] = $product->getName();
             $data["type"] = "simple";
             $data["regular_price"] = $product->getPrice();
-            $data["description"] = $product->getDescription();
             $data["categories"] = array(array("id" => $wooCategoryId));
             $data["images"] = array(array("src" => $product->getImageUrl(), "position" => 0));
 
@@ -108,9 +111,17 @@ class WoocomerceDAO
                 $data["brands"] = array($wooBrandId);
             }
 
+            // Construct description with characteristics
+            $desc = $product->getDescription() . "\n<h4>Characteristics:</h4>\n\n";
+            foreach ($product->getCharacteristics() as $charac) {
+                $desc = $desc . "<b>" . $charac["name"] . "</b> " . $charac["value"] . "\n";
+            }
+
+            $data["description"] = $desc;
+
             return $this->woo->post("products", $data);
         } catch (HttpClientException $e) {
-            echo $e->getMessage(); // Error message
+            echo $e->getMessage() . "\n"; // Error message
         }
     }
 
@@ -134,7 +145,7 @@ class WoocomerceDAO
 
             return $this->woo->post("products/categories", $data);
         } catch (HttpClientException $e) {
-            echo $e->getMessage(); // Error message
+            echo $e->getMessage() . "\n"; // Error message
         }
     }
 
@@ -150,7 +161,7 @@ class WoocomerceDAO
                 return get_object_vars($brand);
             }, $this->woo->get("brands"));
         } catch (HttpClientException $e) {
-            echo $e->getMessage(); // Error message
+            echo $e->getMessage() . "\n"; // Error message
         }
     }
 
@@ -166,7 +177,7 @@ class WoocomerceDAO
 
             return $this->woo->post("brands", $data);
         } catch (HttpClientException $e) {
-            echo $e->getMessage(); // Error message
+            echo $e->getMessage() . "\n"; // Error message
         }
     }
 }
