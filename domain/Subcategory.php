@@ -8,18 +8,29 @@
 
 class Subcategory
 {
+    private $categoryName;
     private $subcategoryName;
     private $subcategoryLinks;
 
     /**
      * Subcategory constructor.
+     * @param $categoryName
      * @param $subcategoryName
      * @param $subcategoryLinks
      */
-    public function __construct($subcategoryName, $subcategoryLinks)
+    public function __construct($categoryName, $subcategoryName, $subcategoryLinks)
     {
+        $this->categoryName = $categoryName;
         $this->subcategoryName = $subcategoryName;
         $this->subcategoryLinks = $subcategoryLinks;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCategoryName()
+    {
+        return $this->categoryName;
     }
 
     /**

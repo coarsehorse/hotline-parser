@@ -6,9 +6,9 @@
  * Time: 4:59 PM
  */
 
-include_once "get_categories.php";
-include_once "get_product_links.php";
-include_once "get_product.php";
+include_once "parser/get_categories.php";
+include_once "parser/get_product_links.php";
+include_once "parser/get_product.php";
 
 $time_start = microtime(true);
 $categ = null;
