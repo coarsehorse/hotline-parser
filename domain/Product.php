@@ -11,7 +11,7 @@ class Product
     private $name;
     private $url;
     private $category;
-    private $imageUrl;
+    private $images;
     private $price;
     private $brand;
     private $description;
@@ -20,19 +20,20 @@ class Product
     /**
      * Product constructor.
      * @param $name
+     * @param $url
      * @param $category
-     * @param $imageUrl
+     * @param $images
      * @param $price
      * @param $brand
      * @param $description
      * @param $characteristics
      */
-    public function __construct($name, $url, $category, $imageUrl, $price, $brand, $description, $characteristics)
+    public function __construct($name, $url, $category, $images, $price, $brand, $description, $characteristics)
     {
         $this->name = $name;
         $this->url = $url;
         $this->category = $category;
-        $this->imageUrl = $imageUrl;
+        $this->images = $images;
         $this->price = $price;
         $this->brand = $brand;
         $this->description = $description;
@@ -66,9 +67,9 @@ class Product
     /**
      * @return mixed
      */
-    public function getImageUrl()
+    public function getImages()
     {
-        return $this->imageUrl;
+        return $this->images;
     }
 
     /**

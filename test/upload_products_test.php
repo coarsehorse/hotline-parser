@@ -13,7 +13,7 @@ include_once "../dao/WoocomerceDAO.php";
 $categoryNum = 1; // number of all categories
 $subcPerCategoryNum = 1; // number of subcategories per category
 $productsPerSubcatNum = 10; // number of products per subcategory
-$categoryOffset = 12;
+$categoryOffset = 14;
 $subcategoryOffset = 0;
 $productsOffset = 0;
 
@@ -105,19 +105,6 @@ foreach ($categories as $category) {
         $wooBrandNames = array_map(function ($brand) {
             return $brand["name"];
         }, $wooBrands);
-
-        /*if (count($wooBrands) == 0) {
-            // Add all the parsed brands
-            foreach ($brands as $brand) {
-                if (!in_array($brand, $wooBrandNames)) {
-                    $dao->addBrand($brand);
-                    $wooBrandNames[] = $brand;
-                    echo "1Brand(" . $brand . ") has been added to the WooCommerce\n";
-                }
-            }
-        } else {
-
-        }*/
 
         foreach ($brands as $brand) {
             // Add an absent brands

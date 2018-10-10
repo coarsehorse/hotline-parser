@@ -78,7 +78,7 @@ function productsToStr($products)
             . "\t\"name\": \"" . fix($p->getName()) . "\",\n"
             . "\t\"url\": \"" . fix($p->getUrl()) . "\",\n"
             . "\t\"category\": \"" . fix($p->getCategory()) . "\",\n"
-            . "\t\"imageUrl\": \"" . fix($p->getImageUrl()) . "\",\n"
+            . "\t\"imageUrl\": \"" . fix($p->getImages()) . "\",\n"
             . "\t\"price\": \"" . fix($p->getPrice()) . "\",\n"
             . "\t\"brand\": \"" . fix($p->getBrand()) . "\",\n"
             . "\t\"description\": \"" . fix($p->getDescription()) . "\",\n"

@@ -17,6 +17,12 @@ var_dump($cat);*/
 // range price
 //$product = $parser->getProduct("https://hotline.ua/fashion-gorodskie-ryukzaki/xd-design-bobby-anti-theft-backpack-156-black-p705541/");
 // single price
-$product = $parser->getProduct("https://hotline.ua/dacha_sad-shiny-pilnye/bosch-f016125689/");
+//$product = $parser->getProduct("https://hotline.ua/dacha_sad-shiny-pilnye/bosch-f016125689/");
+//
+//var_dump($product);
 
-var_dump($product);
+// Images test
+$productFew = $parser->getProduct("https://hotline.ua/mobile-mobilnye-telefony-i-smartfony/samsung-galaxy-note-9-n9600-8512gb-ocean-blue/");
+var_dump($productFew);
+$productSingle = $parser->getProduct("https://hotline.ua/auto-nasosy-i-kompressory/dorozhnaya-karta-4905826218/");
+var_dump($productSingle);

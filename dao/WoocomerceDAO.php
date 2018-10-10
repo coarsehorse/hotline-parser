@@ -105,14 +105,25 @@ class WoocomerceDAO
             $data["type"] = "simple";
             $data["regular_price"] = $product->getPrice();
             $data["categories"] = array(array("id" => $wooCategoryId));
-            $data["images"] = array(array("src" => $product->getImageUrl(), "position" => 0));
+
+            // Make array of images with their positions
+            $dataImgs = [];
+
+            for ($i = 0; $i < count($product->getImages()); $i++)
+                $dataImgs[] = [
+                    "src" => $product->getImages()[$i],
+                    "position" => $i
+                ];
+
+            $data["images"] = $dataImgs;
 
             if ($wooBrandId) {
                 $data["brands"] = array($wooBrandId);
             }
 
-            // Construct description with characteristics
+            // Make description with characteristics
             $desc = $product->getDescription() . "\n<h4>Characteristics:</h4>\n\n";
+
             foreach ($product->getCharacteristics() as $charac) {
                 $desc = $desc . "<b>" . $charac["name"] . "</b> " . $charac["value"] . "\n";
             }

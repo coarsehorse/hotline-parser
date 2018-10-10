@@ -208,15 +208,36 @@ class HotlineParser
             $category = null;
         }
 
-        // Parsing image
-        // //img[contains(@data-type, 'photo')]
-        $imageUrl = $xpath
+        // Parsing images
+        $images = $this->getProductImages($link);
+
+        /*$images = [];
+        $productImages = $xpath
+            ->query("//div[@class='gallery-box-img']//div[contains(@class, 'owl-item')]/img/@src");
+
+        // If there are a few images available
+        if ($productImages->length != 0) {
+            foreach ($productImages as $image) {
+                $images[] = $image->item(0)->textContent;
+            }
+        } else {
+            // Otherwise get single image
+            $productImage = $xpath
+                ->query("//div[@class='gallery-box-img']/img/@src");
+            if ($productImage->length != 0) {
+                $images[] = $productImage->item(0)->textContent;
+            } else {
+                throw new Exception("No images found on " . $link);
+            }
+        }*/
+
+        /*$imageUrl = $xpath
             ->query("//div[contains(@class, 'gallery-box')]/img[contains(@class, 'img-product')]/@src");
         if ($imageUrl->length != 0) {
             $imageUrl = trim($imageUrl->item(0)->textContent);
         } else {
             $imageUrl = null;
-        }
+        }*/
 
         // Parsing price
         $price = null;
@@ -288,6 +309,60 @@ class HotlineParser
         }
 
 
-        return new Product($name, $link, $category, $imageUrl, $price, $brand, $description, $characteristics);
+        return new Product($name, $link, $category, $images, $price, $brand, $description, $characteristics);
+    }
+
+    /**
+     * @param $productURL
+     * @return array
+     * @throws Exception
+     */
+    private function getProductImages($productURL) {
+        // Get csrf-token token from usual session
+        // Prepare curl
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $productURL);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch))
+            throw new Exception(curl_error($ch));
+
+        $dom = new DomDocument();
+        @$dom->loadHTML($response);
+        $xpath = new DOMXpath($dom);
+
+        $tokenQuery = $xpath->query("//meta[@name='csrf-token']/@content");
+        if ($tokenQuery->length != 0) {
+            $token = $tokenQuery->item(0)->textContent;
+        } else {
+            throw new Exception("Failed to parse x-csrf-token on " . $productURL);
+        }
+
+        // Make POST request to the shop API to get full images
+        curl_setopt($ch, CURLOPT_URL, $productURL . "get-product-gallery-content/");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-csrf-token: ' . $token));
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch))
+            throw new Exception(curl_error($ch));
+
+        // Parse response
+        @$dom->loadHTML(json_decode($response, true)["data"]);
+        $xpath = new DOMXpath($dom);
+
+        // Get image URLs
+        $imagesQuery = $xpath->query("//img/@data-gallery-image");
+        $images = [];
+
+        if ($imagesQuery->length != 0) {
+            foreach ($imagesQuery as $image) {
+                $images[] = $image->textContent;
+            }
+        }
+
+        return $images;
     }
 }
