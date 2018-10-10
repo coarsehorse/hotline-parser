@@ -22,7 +22,10 @@ var_dump($cat);*/
 //var_dump($product);
 
 // Images test
-$productFew = $parser->getProduct("https://hotline.ua/mobile-mobilnye-telefony-i-smartfony/samsung-galaxy-note-9-n9600-8512gb-ocean-blue/");
-var_dump($productFew);
-$productSingle = $parser->getProduct("https://hotline.ua/auto-nasosy-i-kompressory/dorozhnaya-karta-4905826218/");
+//$productFew = $parser->getProduct("https://hotline.ua/mobile-mobilnye-telefony-i-smartfony/samsung-galaxy-note-9-n9600-8512gb-ocean-blue/");
+//var_dump($productFew);
+//$productSingle = $parser->getProduct("https://hotline.ua/auto-nasosy-i-kompressory/dorozhnaya-karta-4905826218/");
+//var_dump($productSingle);
+
+$productSingle = $parser->getProduct("https://hotline.ua/mobile-umnye-chasy-smartwatch/amazfit-stratos-2s-black/");
 var_dump($productSingle);

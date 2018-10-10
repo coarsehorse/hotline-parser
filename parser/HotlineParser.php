@@ -129,11 +129,13 @@ class HotlineParser
      * @param int $n the desirable number of product links.
      * @return array the array of the subcategory product links. Array length will be <= $n.
      */
-    function getSubcategoryProductLinks($subcategory, $n = 20)
+    function getSubcategoryProductLinks($subcategory, $n = 20, $productsOffset = 0)
     {
         $productLinks = array();
+        $productsCounter = 0;
 
         // Parsing product links in each subcategory link
+        // subLink is another pseudo category like "Apple" or "Google" in subcategory "Smartphones"
         foreach ($subcategory->getSubcategoryLinks() as $subLink) {
             // Delay to avoid hotline ban
             sleep(1);
@@ -147,27 +149,34 @@ class HotlineParser
             // Getting product links
             $productLinksQuery = $xpath->query("//div[@class='item-img']/a/@href");
 
+            var_dump($productLinksQuery->length);
+
             foreach ($productLinksQuery as $href) {
-                // Complete the execution if $n product links are found
-                if (count($productLinks) >= $n) {
-                    return $productLinks;
-                }
+                $productsCounter++;
 
-                $linkPart = $href->textContent;
-
-                // Exclude unstandardized products
-                $exceptionsArray = array("/price/");
-                $linkIsBad = false;
-
-                foreach ($exceptionsArray as $exception) {
-                    if (strpos($linkPart, $exception) !== false) {
-                        $linkIsBad = true;
-                        break;
+                // Check offset
+                if (($productsCounter - 1) >= $productsOffset) {
+                    // Complete the execution if $n product links are found
+                    if (count($productLinks) >= $n) {
+                        return $productLinks;
                     }
-                }
 
-                if (!$linkIsBad) {
-                    $productLinks[] = "https://hotline.ua" . $linkPart;
+                    $linkPart = $href->textContent;
+
+                    // Exclude unstandardized products
+                    $exceptionsArray = array("/price/");
+                    $linkIsBad = false;
+
+                    foreach ($exceptionsArray as $exception) {
+                        if (strpos($linkPart, $exception) !== false) {
+                            $linkIsBad = true;
+                            break;
+                        }
+                    }
+
+                    if (!$linkIsBad) {
+                        $productLinks[] = "https://hotline.ua" . $linkPart;
+                    }
                 }
             }
         }
@@ -180,6 +189,7 @@ class HotlineParser
      *
      * @param $link string The product url.
      * @return Product The product object.
+     * @throws Exception
      */
     function getProduct($link)
     {
@@ -211,34 +221,6 @@ class HotlineParser
         // Parsing images
         $images = $this->getProductImages($link);
 
-        /*$images = [];
-        $productImages = $xpath
-            ->query("//div[@class='gallery-box-img']//div[contains(@class, 'owl-item')]/img/@src");
-
-        // If there are a few images available
-        if ($productImages->length != 0) {
-            foreach ($productImages as $image) {
-                $images[] = $image->item(0)->textContent;
-            }
-        } else {
-            // Otherwise get single image
-            $productImage = $xpath
-                ->query("//div[@class='gallery-box-img']/img/@src");
-            if ($productImage->length != 0) {
-                $images[] = $productImage->item(0)->textContent;
-            } else {
-                throw new Exception("No images found on " . $link);
-            }
-        }*/
-
-        /*$imageUrl = $xpath
-            ->query("//div[contains(@class, 'gallery-box')]/img[contains(@class, 'img-product')]/@src");
-        if ($imageUrl->length != 0) {
-            $imageUrl = trim($imageUrl->item(0)->textContent);
-        } else {
-            $imageUrl = null;
-        }*/
-
         // Parsing price
         $price = null;
         $priceRange = $xpath
@@ -247,7 +229,9 @@ class HotlineParser
             $singlePrice = $xpath
                 ->query("//div[contains(@class, 'resume-price')]//span[contains(@class, 'price-format')]");
             if ($singlePrice->length != 0) {
-                $price = explode(",", trim($singlePrice->item(0)->textContent))[0];
+                // Replace &nbsp
+                $price = str_replace(" ", "",
+                    explode(",", trim($singlePrice->item(0)->textContent))[0]);
             } else {
                 throw new Exception("Price string length = 0 at " . $link);
             }
@@ -282,7 +266,7 @@ class HotlineParser
 
         // Parsing characteristics
         $characteristics = array();
-        $charQuery = $xpath->query("//div[@class='clearfix active']/div");
+        $charQuery = $xpath->query("//div[@class='clearfix']/div"); // extended characteristics
         if ($charQuery->length != 0) {
             foreach ($charQuery as $table) {
                 /* @var $table DOMElement */

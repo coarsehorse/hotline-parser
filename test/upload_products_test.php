@@ -12,10 +12,12 @@ include_once "../dao/WoocomerceDAO.php";
 // Input data
 $categoryNum = 1; // number of all categories
 $subcPerCategoryNum = 1; // number of subcategories per category
-$productsPerSubcatNum = 10; // number of products per subcategory
+$productsPerSubcatNum = 3; // number of products per subcategory
+
+// Offsets
 $categoryOffset = 14;
-$subcategoryOffset = 0;
-$productsOffset = 0;
+$subcategoryOffset = 4;
+$productsOffset = 24;
 
 // Prepare parser and dao
 $parser = new HotlineParser();
@@ -32,7 +34,6 @@ $wooCategoryNames = array_map(function ($nameId) {
 }, $wooCategories);
 
 foreach ($categories as $category) {
-    /*$parsedCategories[] = $category;*/
     $categoryId = 0;
 
     // Check if category exists in Woo
@@ -60,22 +61,21 @@ foreach ($categories as $category) {
     }));
 
     // Parse subcategories
-    for ($i = 0; $i < $subcPerCategoryNum; $i++) {
+    $subcCounter = 0;
+    for ($i = $subcategoryOffset;
+         $i < count($subcategories), $subcCounter < $subcPerCategoryNum; $i++, $subcCounter++) {
+
         $subcategory = $subcategories[$i];
-        /*$parsedSubcategories[] = $subcategory;*/
         $subcategoryId = 0;
 
         // Check if the subcategory exists in Woo
         if (!in_array($subcategory->getSubcategoryName(), $wooCategoryNames)) {
             // Create new subcategory and get id
             $q = $dao->addCategory($subcategory->getSubcategoryName(), $categoryId);
-            if ($q) {
+            if ($q)
                 $subcategoryId = get_object_vars($q)["id"];
-
-                //echo "Subcategory \"" . $subcategory->getSubcategoryName() . "\" has been added to the WooCommerce\n";
-            } else {
+            else
                 throw new Exception("\nSomething goes wrong with subcategory addition\n");
-            }
         } else {
             // Find subcategory id
             $filtered = array_values(array_filter($wooCategories, function ($wc) use ($subcategory) {
@@ -84,12 +84,8 @@ foreach ($categories as $category) {
             $subcategoryId = $filtered[0]["id"];
         }
 
-
         // Parse n products from subcategory and save it
-        $productLinks = $parser->getSubcategoryProductLinks($subcategory, $productsPerSubcatNum);
-
-        /*echo "Subcategory(" . $subcategory->getSubcategoryName()
-            . ") product links(" . count($productLinks) . ") has been parsed\n";*/
+        $productLinks = $parser->getSubcategoryProductLinks($subcategory, $productsPerSubcatNum, $productsOffset);
 
         $parsedProducts = array();
 
@@ -128,7 +124,8 @@ foreach ($categories as $category) {
                 return $wooBrand["name"] == $product->getBrand();
             }));
             $brandId = $brandId[0]["term_id"];
-            $dao->uploadProduct($product, $subcategoryId, $brandId);
+            //$dao->uploadProduct($product, $subcategoryId, $brandId);
+            var_dump($product);
         }
         echo "Subcategory(" . $subcategory->getSubcategoryName()
             . ") products(" . count($parsedProducts). ") has been uploaded\n";
