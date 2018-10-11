@@ -6,8 +6,8 @@
  * Time: 2:26 AM
  */
 
-require __DIR__ . '\..\vendor\autoload.php';
-include_once "../domain/Product.php";
+require __DIR__ . '/../vendor/autoload.php';
+include_once __DIR__ . "/../domain/Product.php";
 
 use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
