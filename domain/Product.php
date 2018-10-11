@@ -6,27 +6,62 @@
  * Time: 11:06 PM
  */
 
+/**
+ * Hotline Product data model class.
+ */
 class Product
 {
+    /**
+     * @var string
+     */
     private $name;
+
+    /**
+     * @var string
+     */
     private $url;
+
+    /**
+     * @var string
+     */
     private $category;
+
+    /**
+     * @var array
+     */
     private $images;
+
+    /**
+     * @var string
+     */
     private $price;
+
+    /**
+     * @var string
+     */
     private $brand;
+
+    /**
+     * @var string
+     */
     private $description;
+
+    /**
+     * @var array
+     */
     private $characteristics;
 
     /**
      * Product constructor.
-     * @param $name
-     * @param $url
-     * @param $category
-     * @param $images
-     * @param $price
-     * @param $brand
-     * @param $description
-     * @param $characteristics
+     *
+     * @param $name string The name.
+     * @param $url string The product hotline url.
+     * @param $category string The category name.
+     * @param $images array The images array.
+     * @param $price string The lowest price.
+     * @param $brand string The brand name.
+     * @param $description string The description.
+     * @param $characteristics array The characteristics array.
      */
     public function __construct($name, $url, $category, $images, $price, $brand, $description, $characteristics)
     {
@@ -41,7 +76,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getName()
     {
@@ -49,7 +84,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getUrl()
     {
@@ -57,7 +92,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCategory()
     {
@@ -65,7 +100,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getImages()
     {
@@ -73,7 +108,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrice()
     {
@@ -81,7 +116,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getBrand()
     {
@@ -89,7 +124,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getDescription()
     {
@@ -97,7 +132,7 @@ class Product
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getCharacteristics()
     {

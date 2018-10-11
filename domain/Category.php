@@ -6,15 +6,26 @@
  * Time: 3:59 AM
  */
 
+/**
+ * Hotline Category data model class.
+ */
 class Category
 {
+    /**
+     * @var string
+     */
     private $categoryName;
+
+    /**
+     * @var array
+     */
     private $subcategories;
 
     /**
      * Category constructor.
-     * @param $categoryName
-     * @param $subcategories
+     *
+     * @param $categoryName string The category name.
+     * @param $subcategories array The subcategories.
      */
     public function __construct($categoryName, $subcategories)
     {
@@ -23,7 +34,7 @@ class Category
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCategoryName()
     {
@@ -31,12 +42,10 @@ class Category
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getSubcategories()
     {
         return $this->subcategories;
     }
-
-
 }

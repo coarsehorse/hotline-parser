@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php
 /**
+ * Starter Script
+ *
  * Created by PhpStorm.
  * User: User
  * Date: 010 10.10.18
@@ -76,15 +78,18 @@ if (count($options) == 0) {
     readOption("tp", $tp, $params, $options);
 }
 
-// Run hotline parser
+// Starting
 $parser = new HotlineParser();
 
 try {
+    echo ":::::::::::::::::::::::::::::\n";
+    echo ":::: Hotline parser v1.0 ::::\n";
+    echo ":::::::::::::::::::::::::::::\n\n";
     echo "The parsing is running...\n";
     $parser->parse($cn, $sn, $pn, $co, $so, $po);
     echo "Done.\n";
 } catch (Exception $e) {
-    echo "Error: " . $e->getTraceAsString();
+    echo "Error: " . $e->getMessage();
 }
 
 /**

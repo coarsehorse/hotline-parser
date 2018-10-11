@@ -219,7 +219,23 @@ class HotlineParser
         }
 
         // Parsing images
-        $images = $this->getProductImages($link);
+        $images = [];
+
+        try {
+            $images = $this->getProductImages($link);
+        } catch (Exception $e) {
+            echo "[Failed] The first attempt to get the images for product: " . $link
+                . " failed. Error message: " . $e->getMessage() . "\n";
+            sleep(5); // cooldown
+        }
+        if (count($images) == 0) { // second attempt
+            try {
+                $images = $this->getProductImages($link);
+            } catch (Exception $e) {
+                echo "[Failed] The second attempt to get the images for product: " . $link
+                    . " failed. Error message: " . $e->getMessage() . " Ignoring images...\n";
+            }
+        }
 
         // Parsing price
         $price = null;
@@ -297,9 +313,12 @@ class HotlineParser
     }
 
     /**
-     * @param $productURL
-     * @return array
-     * @throws Exception
+     * Getting product high quality images using
+     * csrf-token and hotline inner API.
+     *
+     * @param $productURL string The url of the product.
+     * @return array The array of image urls.
+     * @throws Exception with message about error.
      */
     private function getProductImages($productURL) {
         // Get csrf-token token from usual session
@@ -350,8 +369,22 @@ class HotlineParser
         return $images;
     }
 
-    public function parse($categoryNum = 5, $subcPerCategoryNum = 4, $productsPerSubcatNum = 10,
-                   $categoryOffset = 0, $subcategoryOffset = 0, $productsOffset = 0) {
+    /**
+     * Parser entry point.
+     * Parses hotline catalog for categories and subcategories(one request to the hotline).
+     * Then parses each subcategory for product links(1-20 request to the hotline).
+     * Than parses each product link(one request to the hotline per product).
+     *
+     * @param int $categoryNum The number of categories.
+     * @param int $subcPerCategoryNum The number of subcategories per category.
+     * @param int $productPerSubcatNum The number of products per subcategory.
+     * @param int $categoryOffset The category offset.
+     * @param int $subcategoryOffset The subcategory offset.
+     * @param int $productsOffset The products offset.
+     * @throws Exception with message about error.
+     */
+    public function parse($categoryNum = 5, $subcPerCategoryNum = 4, $productPerSubcatNum = 10,
+                          $categoryOffset = 0, $subcategoryOffset = 0, $productsOffset = 0) {
 
         // Prepare parser and dao
         $dao = WoocomerceDAO::getInstance();
@@ -378,7 +411,8 @@ class HotlineParser
 
                     echo "Category \"" . $category->getCategoryName() . "\" has been added to the WooCommerce\n";
                 } else {
-                    throw new Exception("Something goes wrong with category addition");
+                    throw new Exception("Something goes wrong with category("
+                        . $category->getCategoryName() . ") addition");
                 }
             } else {
                 // Find category id
@@ -408,7 +442,8 @@ class HotlineParser
                     if ($q)
                         $subcategoryId = get_object_vars($q)["id"];
                     else
-                        throw new Exception("\nSomething goes wrong with subcategory addition\n");
+                        throw new Exception("\nSomething goes wrong with subcategory("
+                            . $subcategory->getSubcategoryName() . ") addition\n");
                 } else {
                     // Find subcategory id
                     $filtered = array_values(array_filter($wooCategories, function ($wc) use ($subcategory) {
@@ -418,7 +453,7 @@ class HotlineParser
                 }
 
                 // Parse n products from subcategory and save it
-                $productLinks = $this->getSubcategoryProductLinks($subcategory, $productsPerSubcatNum, $productsOffset);
+                $productLinks = $this->getSubcategoryProductLinks($subcategory, $productPerSubcatNum, $productsOffset);
 
                 $parsedProducts = array();
 
@@ -429,7 +464,10 @@ class HotlineParser
                     . ") products(" . count($parsedProducts) . ") has been parsed\n";
 
                 // Parse products brands
-                $brands = array_map(function ($p) { return $p->getBrand(); }, $parsedProducts);
+                $brandProducts = array_filter($parsedProducts, function ($p) {
+                    return !is_null($p->getBrand());
+                });
+                $brands = array_map(function ($p) { return $p->getBrand(); }, $brandProducts);
                 $wooBrands = $dao->getBrands();
                 $wooBrandNames = array_map(function ($brand) {
                     return $brand["name"];
@@ -456,8 +494,11 @@ class HotlineParser
                     $brandId = array_values(array_filter($wooBrands, function ($wooBrand) use ($product) {
                         return $wooBrand["name"] == $product->getBrand();
                     }));
-                    $brandId = $brandId[0]["term_id"];
-                    $dao->uploadProduct($product, $subcategoryId, $brandId);
+                    if (count($brandId) != 0) { // If brand exists
+                        $brandId = $brandId[0]["term_id"];
+                        $dao->uploadProduct($product, $subcategoryId, $brandId);
+                    } else // Otherwise
+                        $dao->uploadProduct($product, $subcategoryId);
                 }
                 echo "Subcategory(" . $subcategory->getSubcategoryName()
                     . ") products(" . count($parsedProducts). ") has been uploaded\n";

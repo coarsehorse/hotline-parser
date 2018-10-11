@@ -6,6 +6,9 @@
  * Time: 3:49 AM
  */
 
+/**
+ * Hotline Subcategory data model class.
+ */
 class Subcategory
 {
     private $categoryName;
@@ -14,9 +17,10 @@ class Subcategory
 
     /**
      * Subcategory constructor.
-     * @param $categoryName
-     * @param $subcategoryName
-     * @param $subcategoryLinks
+     *
+     * @param $categoryName string The category name.
+     * @param $subcategoryName string The subcategory name.
+     * @param $subcategoryLinks array The subcategory links.
      */
     public function __construct($categoryName, $subcategoryName, $subcategoryLinks)
     {
@@ -26,7 +30,7 @@ class Subcategory
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCategoryName()
     {
@@ -34,7 +38,7 @@ class Subcategory
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getSubcategoryName()
     {
@@ -42,7 +46,7 @@ class Subcategory
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getSubcategoryLinks()
     {
